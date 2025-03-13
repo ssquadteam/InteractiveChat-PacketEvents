@@ -7,7 +7,7 @@ PacketEvents shades Adventure, but doesn't relocate it.\
 InteractiveChat shades Adventure **and** relocates it.
 
 This creates several issues when it comes to using Adventure, which IC uses heavily.\
-It is possible to do this through Reflection within IC itself, however that impacts maintainability and readability.\
+It is possible to do this through Reflection within IC itself, however that impacts maintainability and readability.
 
 In the end, we decided to split PacketEvents support into two parts:
 1. Remove the inherent dependency on ProtocolLib.
