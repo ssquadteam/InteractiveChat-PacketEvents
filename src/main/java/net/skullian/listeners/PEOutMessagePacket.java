@@ -38,8 +38,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.loohp.interactivechat.listeners.packet.MessagePacketHandler.SERVICE;
-import static com.loohp.interactivechat.listeners.packet.MessagePacketHandler.UUID_NIL;
+import static com.loohp.interactivechat.listeners.packet.MessagePacketHandler.*;
 
 public class PEOutMessagePacket implements PacketListener {
 
@@ -117,8 +116,6 @@ public class PEOutMessagePacket implements PacketListener {
                         nativeComponent = ((WrapperPlayServerChatMessage) packet).getMessage().getChatContent();
                     }
 
-                    System.out.println("THIS IS THE NATIVE COMPONENT! " + nativeComponent);
-
                     return new PacketAccessorResult(NativeAdventureConverter.componentFromNative(nativeComponent), ChatComponentType.NativeAdventureComponent, 0, false);
                 },
                 (packet, component, type, field, sender) -> {
@@ -132,8 +129,6 @@ public class PEOutMessagePacket implements PacketListener {
                     try {
                         if (packet instanceof WrapperPlayServerChatMessage) {
                             WrapperPlayServerChatMessage chatMessage = (WrapperPlayServerChatMessage) packet;
-                            System.out.println("so rn the component is " + ((WrapperPlayServerChatMessage) packet).getMessage().getChatContent());
-                            System.out.println("it's going to be " + component);
 
                             if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
                                 ((ChatMessage_v1_19_3) chatMessage.getMessage()).setUnsignedChatContent((net.kyori.adventure.text.Component) type.convertTo(component, legacyRGB));
@@ -141,14 +136,11 @@ public class PEOutMessagePacket implements PacketListener {
                                 chatMessage.getMessage().setChatContent((net.kyori.adventure.text.Component) type.convertTo(component, legacyRGB));
                             }
                         } else {
-                            System.out.println("so rn the component is " + ((WrapperPlayServerSystemChatMessage) packet).getMessage());
-                            System.out.println("it's going to be " + component);
 
                             WrapperPlayServerSystemChatMessage chatMessage = (WrapperPlayServerSystemChatMessage) packet;
                             chatMessage.setMessage((net.kyori.adventure.text.Component) type.convertTo(component, legacyRGB));
                         }
                     } catch (Throwable e) {
-                        System.out.println("I DETECT A THROWABLE");
                         e.printStackTrace();
                         if (packet instanceof WrapperPlayServerChatMessage) {
                             WrapperPlayServerChatMessage chatMessage = (WrapperPlayServerChatMessage) packet;
@@ -259,19 +251,15 @@ public class PEOutMessagePacket implements PacketListener {
     public void onPacketSend(PacketSendEvent event) {
         if (!PACKET_HANDLERS.containsKey(event.getPacketType())) return;
 
-        System.out.println("hmmm");
-        System.out.println(event.getPacketType());
         handlePacketSending(event);
     }
 
     private void handlePacketSending(PacketSendEvent event) {
         try {
             if (event.isCancelled()) return;
-            System.out.println("a");
 
             PacketHandler packetHandler = PACKET_HANDLERS.get(event.getPacketType());
             if (!packetHandler.getPreFilter().test(event)) return;
-            System.out.println("b");
 
             InteractiveChat.messagesCounter.getAndIncrement();
 
@@ -285,29 +273,20 @@ public class PEOutMessagePacket implements PacketListener {
             UUID messageUUID = UUID.randomUUID();
             ICPlayer determinedSender = ICPlayerFactory.getICPlayer((Player) event.getPlayer());
 
-            System.out.println("aaa");
-            /*SCHEDULING_SERVICE.execute(() -> {
-                System.out.println("service");
-                SERVICE.execute(() -> {
-                    System.out.println("processing");
-                    processPacket(receiver, determinedSender, event, messageUUID, false, packetHandler);
-                }, receiver, messageUUID);
-            });*/
-            System.out.println("running sync");
             PacketSendEvent originalEvent = event.clone();
-            Bukkit.getScheduler().runTaskAsynchronously(InteractiveChat.plugin, () -> processPacket(receiver, determinedSender, event, messageUUID, false, packetHandler, originalEvent));
+            SCHEDULING_SERVICE.execute(() -> {
+                SERVICE.execute(() -> {
+                    processPacket(receiver, determinedSender, event, messageUUID, false, packetHandler, originalEvent);
+                }, receiver, messageUUID);
+            });
         } catch (Throwable e) {
             e.printStackTrace();
         }
     }
 
     private static void processPacket(Player receiver, ICPlayer determinedSender, PacketSendEvent event, UUID messageUUID, boolean isFiltered, PacketHandler packetHandler, PacketSendEvent originalEvent) {
-        System.out.println("huhhhh");
         PacketWrapper<?> originalWrapper = originalEvent.getLastUsedWrapper();
-        System.out.println("HHUHHH");
         PacketWrapper<?> packet = event.getLastUsedWrapper();
-
-        System.out.println("I WAS TRIGGERED BITCHES!");
 
         try {
             if (packetHandler.getAccessor() == null) {
@@ -317,7 +296,6 @@ public class PEOutMessagePacket implements PacketListener {
 
             PacketAccessorResult packetAccessorResult = packetHandler.getAccessor().apply(packet);
             Component component = packetAccessorResult.getComponent();
-            System.out.println("PROCESS PACKET COMPONENT: " + component);
             ChatComponentType type = packetAccessorResult.getType();
 
             if (type == null || component == null) {
@@ -349,8 +327,6 @@ public class PEOutMessagePacket implements PacketListener {
             Long timeKey = InteractiveChat.keyTime.get(rawMessageKey);
             long unix = timeKey == null ? System.currentTimeMillis() : timeKey;
             ProcessSenderResult commandSender = ProcessCommands.process(component);
-
-            System.out.println("NEW: " + commandSender.getComponent());
 
             if (!sender.isPresent()) {
                 if (commandSender.getSender() != null) {
@@ -449,10 +425,7 @@ public class PEOutMessagePacket implements PacketListener {
 
             if (InteractiveChat.useItem) {
                 component = ItemDisplay.process(component, sender, receiver, packetAccessorResult.isPreview(), unix);
-                System.out.println("PROCESSED COMPONENT ITEM: " + component);
             }
-
-            System.out.println("AFTER: " + component);
 
             if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16) && InteractiveChat.fontTags) {
                 if (!sender.isPresent() || (sender.isPresent() && PlayerUtils.hasPermission(sender.get().getUniqueId(), "interactivechat.customfont.translate", true, 250))) {

@@ -16,3 +16,10 @@ In the end, we decided to split PacketEvents support into two parts:
 This allows us to use the now-reflected Adventure API for InteractiveChat, and the normal Adventure which PE / the server will provide.
 
 You can see the corresponding PR here: https://github.com/LOOHP/InteractiveChat/pull/256
+
+## Setup
+1. Install the latest version of PacketEvents, and this plugin.
+2. Start your server
+
+## Permissions and Commands
+`/interactivechatpacketevents checkupdate` - Requires the `interactivechatpacketevents.checkupdate` command (or OP). `/icpe checkupdate` also works.
