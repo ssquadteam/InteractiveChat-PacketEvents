@@ -8,9 +8,20 @@ import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.listeners.packet.ClientSettingsHandler;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.PlayerUtils;
+import net.skullian.InteractiveChatPacketEvents;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 
-public class PEClientSettingsPacket implements PacketListener {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+public class PEClientSettingsPacket implements PacketListener, Listener {
+
+    private final Map<UUID, Boolean> colorSettingsMap = new HashMap<>();
 
     @Override
     public void onPacketReceive(PacketReceiveEvent event) {
@@ -21,9 +32,25 @@ public class PEClientSettingsPacket implements PacketListener {
 
             Player player = event.getPlayer();
             boolean colorSettings = packet.isChatColors();
-            boolean originalColorSettings = PlayerUtils.canChatColor(player);
 
-            ClientSettingsHandler.handlePacketReceiving(colorSettings, originalColorSettings, player);
+            colorSettingsMap.put(player.getUniqueId(), colorSettings);
         }
+    }
+
+    public PEClientSettingsPacket() {
+        Bukkit.getServer().getPluginManager().registerEvents(this, InteractiveChatPacketEvents.instance);
+    }
+
+    // Why do we have to do this?
+    // Since PacketEvents injects directly into Netty, the above method is called BEFORE the server itself actually has time
+    // to create the CraftPlayer instance. This means that we can't call PlayerUtils.canChatColor as that directly fetches
+    // the CraftPlayer handle instance of the player, which results in an exception.
+    // Therefore, we wait for the PlayerJoinEvent which will ensure the CraftPlayer instance has been created.
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+
+        boolean originalColorSettings = PlayerUtils.canChatColor(player);
+        ClientSettingsHandler.handlePacketReceiving(colorSettingsMap.getOrDefault(player.getUniqueId(), true), originalColorSettings, player);
     }
 }

@@ -3,7 +3,7 @@ version: '1.0.0-SNAPSHOT'
 main: net.skullian.InteractiveChatPacketEvents
 api-version: 1.13
 description: Add PacketEvents support to InteractiveChat
-depend: [InteractiveChat, PacketEvents]
+depend: [InteractiveChat, packetevents]
 
 libraries:
   - net.kyori:adventure-text-serializer-plain:4.18.0

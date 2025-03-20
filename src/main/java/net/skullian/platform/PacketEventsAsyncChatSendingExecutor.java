@@ -2,6 +2,7 @@ package net.skullian.platform;
 
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSystemChatMessage;
 import com.loohp.interactivechat.InteractiveChat;
 import com.loohp.interactivechat.objectholders.AsyncChatSendingExecutor;
 import com.loohp.interactivechat.objectholders.OutboundPacket;
@@ -20,10 +21,11 @@ public class PacketEventsAsyncChatSendingExecutor extends AsyncChatSendingExecut
             while (!sendingQueue.isEmpty()) {
                 OutboundPacket out = sendingQueue.poll();
                 try {
-                    if (out.getReciever().isOnline()) {
+                    if (out.getReciever().isOnline() && out.getPacket() != null) {
                         PacketWrapper<?> wrapper = (PacketWrapper<?>) out.getPacket();
+                        if (wrapper instanceof WrapperPlayServerSystemChatMessage) return;
 
-                        PacketEvents.getAPI().getPlayerManager().sendPacket(out.getReciever(), wrapper);
+                        PacketEvents.getAPI().getPlayerManager().sendPacketSilently(out.getReciever(), wrapper);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
