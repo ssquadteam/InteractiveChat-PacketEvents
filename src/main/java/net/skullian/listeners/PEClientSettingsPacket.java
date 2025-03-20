@@ -30,7 +30,7 @@ public class PEClientSettingsPacket implements PacketListener, Listener {
         if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_20_2)) {
             WrapperConfigClientSettings packet = new WrapperConfigClientSettings(event);
 
-            UUID uuid = event.getPlayer();
+            UUID uuid = event.getUser().getUUID();
             boolean colorSettings = packet.isChatColors();
 
             if (Bukkit.getPlayer(uuid) != null) {

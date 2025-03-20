@@ -1,6 +1,7 @@
 package net.skullian.command;
 
 import net.skullian.InteractiveChatPacketEvents;
+import net.skullian.command.subcmd.CheckUpdateCommand;
 import net.skullian.util.ChatUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
@@ -40,6 +41,6 @@ public class CommandHandler {
     }
 
     private void registerCommands() {
-
+        parser.parse(new CheckUpdateCommand());
     }
 }
