@@ -3,6 +3,7 @@ package net.skullian;
 import com.loohp.interactivechat.InteractiveChat;
 import net.skullian.command.CommandHandler;
 import net.skullian.platform.PacketEventsPlatform;
+import net.skullian.updater.UpdateListener;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -22,6 +23,8 @@ public final class InteractiveChatPacketEvents extends JavaPlugin {
         getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[ICPE] Overriding InteractiveChat ProtocolProvider.");
         // initialise manually once IC has loaded completely
         InteractiveChat.protocolPlatform.initialise();
+
+        getServer().getPluginManager().registerEvents(new UpdateListener(), this);
 
         new CommandHandler();
     }

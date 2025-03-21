@@ -6,7 +6,7 @@
 
     <groupId>net.skullian</groupId>
     <artifactId>InteractiveChat-PacketEvents</artifactId>
-    <version>1.0.4</version>
+    <version>1.0.5</version>
     <packaging>jar</packaging>
 
     <name>InteractiveChat-PacketEvents</name>
@@ -108,8 +108,8 @@
             <groupId>com.loohp</groupId>
             <artifactId>interactivechat</artifactId>
             <scope>system</scope>
-            <version>4.2.16.0</version>
-            <systemPath>${basedir}/libs/InteractiveChat-4.2.16.0.jar</systemPath>
+            <version>4.2.17.0</version>
+            <systemPath>${basedir}/libs/InteractiveChat-4.2.17.0.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.github.retrooper</groupId>

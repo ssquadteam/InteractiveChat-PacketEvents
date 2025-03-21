@@ -18,9 +18,11 @@ import com.loohp.interactivechat.utils.InteractiveChatComponentSerializer;
 import com.loohp.interactivechat.utils.MCVersion;
 import com.loohp.interactivechat.utils.NativeAdventureConverter;
 import net.md_5.bungee.chat.ComponentSerializer;
+import net.skullian.InteractiveChatPacketEvents;
 import net.skullian.listeners.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,12 +78,12 @@ public class PacketEventsPlatform implements ProtocolPlatform {
     public void sendUnprocessedChatMessage(CommandSender sender, UUID uuid, Component component) {
         try {
             if (sender instanceof Player) {
+                net.kyori.adventure.text.Component nativeComponent = (net.kyori.adventure.text.Component) NativeAdventureConverter.componentToNative(component, false);
 
                 PacketWrapper<?> packet;
                 if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19)) {
-                    packet = new WrapperPlayServerSystemChatMessage(false, (net.kyori.adventure.text.Component) component);
+                    packet = new WrapperPlayServerSystemChatMessage(false, nativeComponent);
                 } else {
-                    net.kyori.adventure.text.Component nativeComponent = (net.kyori.adventure.text.Component) NativeAdventureConverter.componentToNative(component, false);
                     ChatMessage message;
                     if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_16)) {
                         message = new ChatMessage_v1_16(nativeComponent, ChatTypes.SYSTEM, uuid);
@@ -110,6 +112,11 @@ public class PacketEventsPlatform implements ProtocolPlatform {
     @Override
     public int getProtocolVersion(Player player) {
         return PacketEvents.getAPI().getProtocolManager().getClientVersion(player).getProtocolVersion();
+    }
+
+    @Override
+    public JavaPlugin getRegisteredPlugin() {
+        return InteractiveChatPacketEvents.instance;
     }
 }
 
