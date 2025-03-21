@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.server.ServerLoadEvent;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -42,8 +43,10 @@ public class Updater implements Listener {
 
         if (lookupStatus.isBehind()) {
             if (currentBuild.isStable()) {
+                String url = "https://github.com/TerraByteDev/InteractiveChat-PacketEvents/releases/tag/" + latestBuild.getId();
+
                 ChatUtils.sendMessage("<green>A new version of InteractiveChat-PacketEvents is available: " + latestBuild.getId() + "!", senders);
-                ChatUtils.sendMessage("<grey>Download at: <click:open_url:'https://github.com/TerraByteDev/InteractiveChat-PacketEvents/releases/tag/" + latestBuild.getId() + "'>GitHub Releases</click>", senders);
+                ChatUtils.sendMessage("<grey>Download at: <click:open_url:'" + url + "'>" + url + "</click>", senders);
             } else {
                 ChatUtils.sendMessage("<yellow>You are running a development build of InteractiveChat-PacketEvents!\nThe latest available development build is " + String.format(Locale.ROOT, "%,d", lookupStatus.getDistance()) + " commits ahead.", senders);
             }
@@ -69,5 +72,10 @@ public class Updater implements Listener {
                 checkUpdate(player);
             }
         }, 100);
+    }
+
+    @EventHandler
+    public void onStart(ServerLoadEvent event) {
+        checkUpdate(Bukkit.getConsoleSender());
     }
 }
