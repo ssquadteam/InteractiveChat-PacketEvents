@@ -20,6 +20,7 @@ public class CheckUpdateCommand {
         ChatUtils.sendMessage("<grey>Checking for updates, please wait...", sender);
 
         Updater.UpdateStatus updateStatus = Updater.checkUpdate(sender);
+
         if (updateStatus.isUpToDate() && !updateStatus.isFailed()) {
             ChatUtils.sendMessage("<green>You are running the latest version of InteractiveChat-PacketEvents! <grey>[" + InteractiveChatPacketEvents.instance.getDescription().getVersion() + "]", sender);
         }

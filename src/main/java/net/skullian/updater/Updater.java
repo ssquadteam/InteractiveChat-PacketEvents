@@ -49,7 +49,7 @@ public class Updater implements Listener {
             }
         }
 
-        updateStatus.setUpToDate(lookupStatus.isBehind());
+        updateStatus.setUpToDate(!lookupStatus.isBehind());
         return updateStatus;
     }
 
