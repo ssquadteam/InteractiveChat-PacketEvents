@@ -6,7 +6,7 @@
 
     <groupId>net.skullian</groupId>
     <artifactId>InteractiveChat-PacketEvents</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <packaging>jar</packaging>
 
     <name>InteractiveChat-PacketEvents</name>
