@@ -22,7 +22,7 @@ import net.skullian.InteractiveChatPacketEvents;
 import net.skullian.listeners.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -115,7 +115,7 @@ public class PacketEventsPlatform implements ProtocolPlatform {
     }
 
     @Override
-    public JavaPlugin getRegisteredPlugin() {
+    public Plugin getRegisteredPlugin() {
         return InteractiveChatPacketEvents.instance;
     }
 }
