@@ -4,7 +4,7 @@ This is a very simple plugin that implements all the code seen [here](https://gi
 Very little modifications to code have been made, apart from making it support PacketEvents.
 
 > [!WARNING]
-> This plugin **REQUIRES** v4.3.0.0 of InteractiveChat, or higher.
+> This plugin **REQUIRES** v4.3.0.0 of InteractiveChat, or higher.\
 > This plugin will NOT boot otherwise.
 
 
