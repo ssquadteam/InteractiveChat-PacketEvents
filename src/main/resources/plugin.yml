@@ -1,5 +1,5 @@
 name: InteractiveChat-PacketEvents
-version: '1.0.6'
+version: '1.0.7'
 main: net.skullian.InteractiveChatPacketEvents
 api-version: 1.13
 description: Add PacketEvents support to InteractiveChat
