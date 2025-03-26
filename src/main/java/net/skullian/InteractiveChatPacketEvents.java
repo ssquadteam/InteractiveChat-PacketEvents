@@ -13,6 +13,9 @@ public final class InteractiveChatPacketEvents extends JavaPlugin {
 
     @Override
     public void onLoad() {
+        instance = this;
+
+        getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[ICPE] Overriding InteractiveChat ProtocolProvider.");
         InteractiveChat.protocolPlatform = new PacketEventsPlatform();
     }
 
@@ -20,7 +23,7 @@ public final class InteractiveChatPacketEvents extends JavaPlugin {
     public void onEnable() {
         instance = this;
 
-        getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[ICPE] Overriding InteractiveChat ProtocolProvider.");
+        getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[ICPE] Initialising ProtocolProvider.");
         // initialise manually once IC has loaded completely
         InteractiveChat.protocolPlatform.initialise();
 
