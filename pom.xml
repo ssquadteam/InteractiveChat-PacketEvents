@@ -108,8 +108,8 @@
             <groupId>com.loohp</groupId>
             <artifactId>interactivechat</artifactId>
             <scope>system</scope>
-            <version>4.2.17.0</version>
-            <systemPath>${basedir}/libs/InteractiveChat-4.2.17.0.jar</systemPath>
+            <version>4.3.0.0</version>
+            <systemPath>${basedir}/libs/InteractiveChat-4.3.0.0.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.github.retrooper</groupId>

@@ -25,7 +25,7 @@ public final class InteractiveChatPacketEvents extends JavaPlugin {
 
         getServer().getConsoleSender().sendMessage(ChatColor.YELLOW + "[ICPE] Initialising ProtocolProvider.");
         // initialise manually once IC has loaded completely
-        InteractiveChat.protocolPlatform.initialise();
+        InteractiveChat.protocolPlatform.initialize();
 
         getServer().getPluginManager().registerEvents(new UpdateListener(), this);
 

@@ -33,7 +33,7 @@ import static com.loohp.interactivechat.InteractiveChat.version;
 public class PacketEventsPlatform implements ProtocolPlatform {
 
     @Override
-    public void initialise() {
+    public void initialize() {
         PacketEvents.getAPI().getEventManager().registerListener(new PEOutMessagePacket(), PacketListenerPriority.MONITOR);
         PacketEvents.getAPI().getEventManager().registerListener(new PEClientSettingsPacket(), PacketListenerPriority.NORMAL);
 
@@ -47,7 +47,7 @@ public class PacketEventsPlatform implements ProtocolPlatform {
     }
 
     @Override
-    public void onBungeecordEnabled() {
+    public void onBungeecordModeEnabled() {
         PacketEvents.getAPI().getEventManager().registerListener(new PEServerPingListener(), PacketListenerPriority.NORMAL);
     }
 
