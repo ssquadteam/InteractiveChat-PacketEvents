@@ -19,7 +19,6 @@ import com.loohp.interactivechat.libs.net.kyori.adventure.text.Component;
 import com.loohp.interactivechat.libs.net.kyori.adventure.text.TextReplacementConfig;
 import com.loohp.interactivechat.libs.net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import com.loohp.interactivechat.libs.net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
-import com.loohp.interactivechat.listeners.packet.MessagePacketHandler.*;
 import com.loohp.interactivechat.modules.*;
 import com.loohp.interactivechat.objectholders.ICPlayer;
 import com.loohp.interactivechat.objectholders.ICPlayerFactory;
@@ -31,14 +30,12 @@ import net.skullian.platform.PacketEventsAsyncChatSendingExecutor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
 import static com.loohp.interactivechat.listeners.packet.MessagePacketHandler.*;
+import static net.skullian.InteractiveChatPacketEvents.sendDebug;
 
 public class PEOutMessagePacket implements PacketListener {
 
@@ -72,6 +69,10 @@ public class PEOutMessagePacket implements PacketListener {
                 );
             },
             (packet, component, type, field, sender) -> {
+                sendDebug("Processing DISGUISED_CHAT Packet:" +
+                        "COMPONENT: " + PlainTextComponentSerializer.plainText().serialize(component) +
+                        "SENDER: " + sender);
+
                 boolean legacyRGB = InteractiveChat.version.isLegacyRGB();
 
                 String json = legacyRGB ?
@@ -81,6 +82,11 @@ public class PEOutMessagePacket implements PacketListener {
 
                 WrapperPlayServerDisguisedChat chatPacket = (WrapperPlayServerDisguisedChat) packet;
                 chatPacket.setMessage((net.kyori.adventure.text.Component) type.convertTo(component, legacyRGB));
+
+                sendDebug("PROCESSED DISGUISED_CHAT Packet:" +
+                        "NEW COMPONENT MESSAGE: " + PlainTextComponentSerializer.plainText().serialize(component) +
+                        "SENDER: " + sender +
+                        "LONGER THAN MAX LENGTH: " + longerThanMaxLength);
 
                 return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
             }
@@ -97,12 +103,19 @@ public class PEOutMessagePacket implements PacketListener {
 
                         ChatType type = messagePacket.getMessage().getType();
 
+                        sendDebug("Handling PacketSendEvent for CHAT_MESSAGE:" +
+                                "TYPE: " + type);
+
                         return type == null || type.equals(ChatTypes.GAME_INFO) ?
                                 InteractiveChat.titleListener :
                                 InteractiveChat.chatListener;
                     }
 
                     WrapperPlayServerSystemChatMessage messagePacket = new WrapperPlayServerSystemChatMessage(event);
+
+                    sendDebug("Handling PacketSendEvent for SYSTEM_CHAT_MESSAGE:" +
+                            "IS OVERLAY: " + messagePacket.isOverlay());
+
                     return messagePacket.isOverlay() ?
                             InteractiveChat.titleListener :
                             InteractiveChat.chatListener;
@@ -111,8 +124,14 @@ public class PEOutMessagePacket implements PacketListener {
                     net.kyori.adventure.text.Component nativeComponent = null;
 
                     if (packet instanceof WrapperPlayServerSystemChatMessage) {
+                        sendDebug("Handling SYSTEM_CHAT_MESSAGE Packet:" +
+                                "MESSAGE: " + net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(((WrapperPlayServerSystemChatMessage) packet).getMessage()));
+
                         nativeComponent = ((WrapperPlayServerSystemChatMessage) packet).getMessage();
                     } else if (packet instanceof WrapperPlayServerChatMessage) {
+                        sendDebug("Handling SERVER_CHAT Packet:" +
+                                "MESSAGE: " + net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(((WrapperPlayServerChatMessage) packet).getMessage().getChatContent()));
+
                         nativeComponent = ((WrapperPlayServerChatMessage) packet).getMessage().getChatContent();
                     }
 
@@ -130,15 +149,31 @@ public class PEOutMessagePacket implements PacketListener {
                         if (packet instanceof WrapperPlayServerChatMessage) {
                             WrapperPlayServerChatMessage chatMessage = (WrapperPlayServerChatMessage) packet;
 
+                            sendDebug("Processing SERVER_CHAT Packet:" +
+                                    "LEGACY RGB: " + legacyRGB +
+                                    "LONGER THAN MAX LENGTH: " + longerThanMaxLength +
+                                    "CURRENT MESSAGE: " + net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(chatMessage.getMessage().getChatContent()));
+
                             if (InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_19_3)) {
                                 ((ChatMessage_v1_19_3) chatMessage.getMessage()).setUnsignedChatContent((net.kyori.adventure.text.Component) type.convertTo(component, legacyRGB));
                             } else {
                                 chatMessage.getMessage().setChatContent((net.kyori.adventure.text.Component) type.convertTo(component, legacyRGB));
                             }
-                        } else {
 
+                            sendDebug("Processed SERVER_CHAT Packet:" +
+                                    "NEW COMPONENT: " + PlainTextComponentSerializer.plainText().serialize(component));
+                        } else {
                             WrapperPlayServerSystemChatMessage chatMessage = (WrapperPlayServerSystemChatMessage) packet;
+
+                            sendDebug("Processing SYSTEM_CHAT_MESSAGE Packet:" +
+                                    "LEGACY RGB: " + legacyRGB +
+                                    "LONGER THAN MAX LENGTH: " + longerThanMaxLength +
+                                    "CURRENT MESSAGE: " + net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(chatMessage.getMessage()));
+
                             chatMessage.setMessage((net.kyori.adventure.text.Component) type.convertTo(component, legacyRGB));
+
+                            sendDebug("Processed SYSTEM_CHAT_MESSAGE Packet:" +
+                                    "NEW COMPONENT: " + PlainTextComponentSerializer.plainText().serialize(component));
                         }
                     } catch (Throwable e) {
                         e.printStackTrace();
@@ -176,6 +211,9 @@ public class PEOutMessagePacket implements PacketListener {
                             event -> {
                                 WrapperPlayServerTitle.TitleAction action = ((WrapperPlayServerTitle) event.getLastUsedWrapper()).getAction();
 
+                                sendDebug("Processing PacketSendEvent for TITLE:" +
+                                        "ACTION: " + action);
+
                                 return action != null && !action.equals(WrapperPlayServerTitle.TitleAction.RESET) &&
                                         !action.equals(WrapperPlayServerTitle.TitleAction.HIDE) && !action.equals(WrapperPlayServerTitle.TitleAction.SET_TIMES_AND_DISPLAY) && InteractiveChat.titleListener;
                             },
@@ -194,9 +232,17 @@ public class PEOutMessagePacket implements PacketListener {
                                         json.length() > InteractiveChat.packetStringMaxLength;
 
                                 WrapperPlayServerTitle titlePacket = (WrapperPlayServerTitle) packet;
+                                sendDebug("Processing TITLE Packet: " +
+                                        "LEGACY RGB: " + legacyRGB +
+                                        "LONGER THAN MAX LENGTH: " + longerThanMaxLength +
+                                        "CURRENT TITLE: " + net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(titlePacket.getTitle()));
+
                                 titlePacket.setTitle((net.kyori.adventure.text.Component) type.convertTo(component, legacyRGB));
 
                                 if (sender == null) sender = UUID_NIL;
+
+                                sendDebug("Processed TITLE Packet: " +
+                                        "NEW TITLE: " + PlainTextComponentSerializer.plainText().serialize(component));
 
                                 return new PacketWriterResult(longerThanMaxLength, json.length(), sender);
                             }
@@ -229,6 +275,11 @@ public class PEOutMessagePacket implements PacketListener {
                             InteractiveChatComponentSerializer.gson().serialize(component);
                     boolean longerThanMaxLength = InteractiveChat.sendOriginalIfTooLong && json.length() > InteractiveChat.packetStringMaxLength;
 
+                    sendDebug("Handling packet [" + packet + "]:" +
+                            "LEGACY RGB: " + legacyRGB +
+                            "LONGER THAN MAX LENGTH: " + longerThanMaxLength +
+                            "NEW COMPONENT: " + component);
+
                     net.kyori.adventure.text.Component nativeComponent = (net.kyori.adventure.text.Component) type.convertTo(component, legacyRGB);
                     if (packet instanceof WrapperPlayServerSetTitleText) {
                         ((WrapperPlayServerSetTitleText) packet).setTitle(nativeComponent);
@@ -247,8 +298,21 @@ public class PEOutMessagePacket implements PacketListener {
         return InteractiveChat.version.isNewerOrEqualTo(MCVersion.V1_13) ? 262144 : 32767;
     }
 
+    public static List<PacketTypeCommon> test = Arrays.asList(
+            PacketType.Play.Server.CHAT_MESSAGE,
+            PacketType.Play.Server.CHAT_PREVIEW_PACKET,
+            PacketType.Play.Server.SYSTEM_CHAT_MESSAGE,
+            PacketType.Play.Server.DELETE_CHAT,
+            PacketType.Play.Server.DISGUISED_CHAT,
+            PacketType.Play.Server.CUSTOM_CHAT_COMPLETIONS,
+            PacketType.Play.Server.DISPLAY_CHAT_PREVIEW,
+            PacketType.Play.Server.PLAYER_CHAT_HEADER
+    );
+
     @Override
     public void onPacketSend(PacketSendEvent event) {
+        System.out.println(event.getPacketType());
+
         if (!PACKET_HANDLERS.containsKey(event.getPacketType())) return;
 
         handlePacketSending(event);

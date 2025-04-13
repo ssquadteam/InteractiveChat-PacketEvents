@@ -18,6 +18,8 @@ import org.bukkit.entity.Player;
 import java.util.Arrays;
 import java.util.List;
 
+import static net.skullian.InteractiveChatPacketEvents.sendDebug;
+
 public class PERedispatchSignedPacket implements PacketListener {
 
     private static final List<PacketTypeCommon> packetTypes = getPacketTypes();
@@ -25,15 +27,23 @@ public class PERedispatchSignedPacket implements PacketListener {
     @Override
     public void onPacketSend(PacketSendEvent event) {
         if (event.getPacketType().equals(PacketType.Play.Server.SERVER_DATA)) {
+            sendDebug("HANDLING SERVER DATA PACKET: " + event.getPacketType());
+
             handleServerDataPacket(event);
         } else {
             if (shouldIgnoreEvent(event)) return;
 
             if (event.getPacketType().equals(PacketType.Play.Client.CHAT_MESSAGE)) {
+                sendDebug("HANDLING CHAT MESSAGE PACKET: " + event.getPacketType());
+
                 handleChatPacket(event);
             } else {
+                sendDebug("HANDLING CHAT COMMAND PACKET: " + event.getPacketType());
+
                 handleChatCommandPacket(event);
             }
+
+            event.markForReEncode(true);
         }
     }
 
@@ -62,6 +72,9 @@ public class PERedispatchSignedPacket implements PacketListener {
             WrapperPlayServerChatMessage packet = new WrapperPlayServerChatMessage(event);
 
             String message = PlainTextComponentSerializer.plainText().serialize(packet.getMessage().getChatContent());
+
+            sendDebug("PERedispatchSignedPacket HANDLING CHAT MESSAGE: " + message);
+
             if (message.startsWith("/")) {
                 redispatchCommand(event, player, message);
             } else {

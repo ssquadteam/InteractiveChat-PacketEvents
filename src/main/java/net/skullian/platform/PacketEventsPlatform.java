@@ -29,26 +29,27 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.loohp.interactivechat.InteractiveChat.version;
+import static net.skullian.InteractiveChatPacketEvents.instance;
 
 public class PacketEventsPlatform implements ProtocolPlatform {
 
     @Override
     public void initialize() {
-        PacketEvents.getAPI().getEventManager().registerListener(new PEOutMessagePacket(), PacketListenerPriority.MONITOR);
-        PacketEvents.getAPI().getEventManager().registerListener(new PEClientSettingsPacket(), PacketListenerPriority.NORMAL);
+        PacketEvents.getAPI().getEventManager().registerListener(new PEOutMessagePacket(), PacketListenerPriority.valueOf(instance.getConfig().getString("ChatListenerPriority")));
+        PacketEvents.getAPI().getEventManager().registerListener(new PEClientSettingsPacket(), PacketListenerPriority.valueOf(instance.getConfig().getString("ClientSettingsPriority")));
 
         if (version.isNewerOrEqualTo(MCVersion.V1_19)) {
-            PacketEvents.getAPI().getEventManager().registerListener(new PERedispatchSignedPacket(), PacketListenerPriority.HIGHEST);
+            PacketEvents.getAPI().getEventManager().registerListener(new PERedispatchSignedPacket(), PacketListenerPriority.valueOf(instance.getConfig().getString("SignedPacketPriority")));
         }
 
         if (!version.isLegacy()) {
-            PacketEvents.getAPI().getEventManager().registerListener(new PEOutTabCompletePacket(), PacketListenerPriority.HIGH);
+            PacketEvents.getAPI().getEventManager().registerListener(new PEOutTabCompletePacket(), PacketListenerPriority.valueOf(instance.getConfig().getString("LegacyCommandPacketPriority")));
         }
     }
 
     @Override
     public void onBungeecordModeEnabled() {
-        PacketEvents.getAPI().getEventManager().registerListener(new PEServerPingListener(), PacketListenerPriority.NORMAL);
+        PacketEvents.getAPI().getEventManager().registerListener(new PEServerPingListener(), PacketListenerPriority.valueOf(instance.getConfig().getString("BungeecordPingPriority")));
     }
 
     @Override

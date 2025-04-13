@@ -17,19 +17,9 @@ import java.util.List;
 
 import static com.loohp.interactivechat.listeners.packet.OutTabCompletePacketHandler.createComponent;
 import static com.loohp.interactivechat.listeners.packet.OutTabCompletePacketHandler.findICPlayer;
+import static net.skullian.InteractiveChatPacketEvents.sendDebug;
 
 public class PEOutTabCompletePacket implements PacketListener {
-
-    private static Method commandMatchSetTooltipMethod;
-
-    static {
-        try {
-            commandMatchSetTooltipMethod = Arrays.stream(WrapperPlayServerTabComplete.CommandMatch.class.getMethods())
-                    .filter(each -> each.getName().equals("setTooltip") && each.getParameterCount() == 1).findFirst().get();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     @Override
     public void onPacketSend(PacketSendEvent event) {
@@ -43,26 +33,39 @@ public class PEOutTabCompletePacket implements PacketListener {
     }
 
     private static void processPacket(PacketSendEvent event) {
+        sendDebug("PEOutTabCompletePacket PROCESSING PACKET TYPE: " + event.getPacketType());
+
         WrapperPlayServerTabComplete packet = new WrapperPlayServerTabComplete(event);
         Player tabCompleter = event.getPlayer();
 
         List<WrapperPlayServerTabComplete.CommandMatch> matches = packet.getCommandMatches();
+
+        /*for (WrapperPlayServerTabComplete.CommandMatch match : matches) {
+            sendDebug("PEOutTabCompletePacket MATCH: " + match.getText() + "\nTOOLTIP: " + match.getTooltip());
+        }
 
         List<WrapperPlayServerTabComplete.CommandMatch> newMatches = new ArrayList<>();
         for (WrapperPlayServerTabComplete.CommandMatch match : matches) {
             newMatches.add(processMatch(match, tabCompleter));
         }
 
-        packet.setCommandMatches(newMatches);
-        event.markForReEncode(true);
+        sendDebug("----------------------------------------------------------------------------");
+
+        for (WrapperPlayServerTabComplete.CommandMatch match : newMatches) {
+            sendDebug("PEOutTabCompletePacket NEW MATCHES: " + match.getText() + "\nTOOLTIP: " + match.getTooltip());
+        }*/
+
+        packet.setCommandMatches(matches);
     }
 
     private static WrapperPlayServerTabComplete.CommandMatch processMatch(WrapperPlayServerTabComplete.CommandMatch match, Player tabCompleter) {
         String text = match.getText();
         int pos = text.indexOf("\0");
         if (pos < 0) {
+            sendDebug("PROCESSING TEXT MATCH");
             return processTextMatch(match, tabCompleter);
         } else {
+            sendDebug("PROCESSING TOOLTIP MATCH");
             return processTooltipMatch(match, pos, text);
         }
     }
@@ -75,10 +78,9 @@ public class PEOutTabCompletePacket implements PacketListener {
                     Component component = createComponent(icPlayer, tabCompleter);
                     Object nativeComponent = NativeAdventureConverter.componentToNative(component, false);
 
-                    commandMatchSetTooltipMethod.invoke(
-                            match,
-                            nativeComponent
-                    );
+                    sendDebug("NEW COMPONENT: " + component + "\nOLD COMPONENT: " + match.getTooltip());
+
+                    match.setTooltip((net.kyori.adventure.text.Component) nativeComponent);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -90,16 +92,19 @@ public class PEOutTabCompletePacket implements PacketListener {
 
     private static WrapperPlayServerTabComplete.CommandMatch processTooltipMatch(WrapperPlayServerTabComplete.CommandMatch match, int pos, String text) {
         try {
+
+            sendDebug("MATCH TEXT: " + match.getText() + "\nTEXT: " + text);
+
             String tooltip = text.substring(pos + 1);
             text = text.substring(0, pos);
 
             match.setText(text);
 
+            sendDebug("NEW MATCH TEXT: " + text);
+
+
             Object nativeComponent = NativeAdventureConverter.componentToNative(Component.text(tooltip), false);
-            commandMatchSetTooltipMethod.invoke(
-                    match,
-                    nativeComponent
-            );
+            match.setTooltip((net.kyori.adventure.text.Component) nativeComponent);
         } catch (Exception e) {
             e.printStackTrace();
         }
