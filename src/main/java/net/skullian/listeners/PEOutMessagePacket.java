@@ -311,8 +311,6 @@ public class PEOutMessagePacket implements PacketListener {
 
     @Override
     public void onPacketSend(PacketSendEvent event) {
-        System.out.println(event.getPacketType());
-
         if (!PACKET_HANDLERS.containsKey(event.getPacketType())) return;
 
         handlePacketSending(event);

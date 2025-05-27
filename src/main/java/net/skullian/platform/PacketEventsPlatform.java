@@ -65,7 +65,7 @@ public class PacketEventsPlatform implements ProtocolPlatform {
             }
 
             WrapperPlayServerTabComplete packet = new WrapperPlayServerTabComplete(
-                    null,
+                    0,
                     new WrapperPlayServerTabComplete.CommandRange(0, list.size()),
                     suggestions
             );
@@ -113,6 +113,11 @@ public class PacketEventsPlatform implements ProtocolPlatform {
     @Override
     public int getProtocolVersion(Player player) {
         return PacketEvents.getAPI().getProtocolManager().getClientVersion(player).getProtocolVersion();
+    }
+
+    @Override
+    public Player newTemporaryPlayer(String name, UUID uuid) {
+        return PacketEventsDummyPlayer.newInstance(name, uuid);
     }
 
     @Override
