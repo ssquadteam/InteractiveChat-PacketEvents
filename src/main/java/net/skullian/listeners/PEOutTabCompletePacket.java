@@ -39,21 +39,10 @@ public class PEOutTabCompletePacket implements PacketListener {
         Player tabCompleter = event.getPlayer();
 
         List<WrapperPlayServerTabComplete.CommandMatch> matches = packet.getCommandMatches();
-
-        /*for (WrapperPlayServerTabComplete.CommandMatch match : matches) {
-            sendDebug("PEOutTabCompletePacket MATCH: " + match.getText() + "\nTOOLTIP: " + match.getTooltip());
-        }
-
         List<WrapperPlayServerTabComplete.CommandMatch> newMatches = new ArrayList<>();
         for (WrapperPlayServerTabComplete.CommandMatch match : matches) {
             newMatches.add(processMatch(match, tabCompleter));
         }
-
-        sendDebug("----------------------------------------------------------------------------");
-
-        for (WrapperPlayServerTabComplete.CommandMatch match : newMatches) {
-            sendDebug("PEOutTabCompletePacket NEW MATCHES: " + match.getText() + "\nTOOLTIP: " + match.getTooltip());
-        }*/
 
         packet.setCommandMatches(matches);
     }

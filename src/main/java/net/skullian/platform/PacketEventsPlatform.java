@@ -2,12 +2,14 @@ package net.skullian.platform;
 
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.PacketListenerPriority;
+import com.github.retrooper.packetevents.protocol.chat.ChatCompletionAction;
 import com.github.retrooper.packetevents.protocol.chat.ChatTypes;
 import com.github.retrooper.packetevents.protocol.chat.message.ChatMessage;
 import com.github.retrooper.packetevents.protocol.chat.message.ChatMessageLegacy;
 import com.github.retrooper.packetevents.protocol.chat.message.ChatMessage_v1_16;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerChatMessage;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerCustomChatCompletions;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSystemChatMessage;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerTabComplete;
 import com.loohp.interactivechat.InteractiveChat;
@@ -20,6 +22,7 @@ import com.loohp.interactivechat.utils.NativeAdventureConverter;
 import net.md_5.bungee.chat.ComponentSerializer;
 import net.skullian.InteractiveChatPacketEvents;
 import net.skullian.listeners.*;
+import net.skullian.player.PacketEventsDummyPlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -55,19 +58,9 @@ public class PacketEventsPlatform implements ProtocolPlatform {
     @Override
     public void sendTabCompletionPacket(Player player, CustomTabCompletionAction action, List<String> list) {
         try {
-            List<WrapperPlayServerTabComplete.CommandMatch> suggestions = new ArrayList<>();
-            for (String cmd : list) {
-                WrapperPlayServerTabComplete.CommandMatch match = new WrapperPlayServerTabComplete.CommandMatch(
-                        cmd,
-                        null
-                );
-                suggestions.add(match);
-            }
-
-            WrapperPlayServerTabComplete packet = new WrapperPlayServerTabComplete(
-                    null,
-                    new WrapperPlayServerTabComplete.CommandRange(0, list.size()),
-                    suggestions
+            WrapperPlayServerCustomChatCompletions packet = new WrapperPlayServerCustomChatCompletions(
+                    ChatCompletionAction.ADD,
+                    list
             );
             PacketEvents.getAPI().getPlayerManager().sendPacket(player, packet);
         } catch (Exception e) {
@@ -113,6 +106,11 @@ public class PacketEventsPlatform implements ProtocolPlatform {
     @Override
     public int getProtocolVersion(Player player) {
         return PacketEvents.getAPI().getProtocolManager().getClientVersion(player).getProtocolVersion();
+    }
+
+    @Override
+    public Player newTemporaryPlayer(String s, UUID uuid) {
+        return PacketEventsDummyPlayer.newInstance(s, uuid);
     }
 
     @Override

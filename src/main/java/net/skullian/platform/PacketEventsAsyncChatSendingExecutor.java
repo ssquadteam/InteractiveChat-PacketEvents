@@ -4,6 +4,8 @@ import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.wrapper.PacketWrapper;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSystemChatMessage;
 import com.loohp.interactivechat.InteractiveChat;
+import com.loohp.interactivechat.libs.com.loohp.platformscheduler.ScheduledTask;
+import com.loohp.interactivechat.libs.com.loohp.platformscheduler.Scheduler;
 import com.loohp.interactivechat.objectholders.AsyncChatSendingExecutor;
 import com.loohp.interactivechat.objectholders.OutboundPacket;
 import org.bukkit.Bukkit;
@@ -16,8 +18,8 @@ public class PacketEventsAsyncChatSendingExecutor extends AsyncChatSendingExecut
     }
 
     @Override
-    public int packetSender() {
-        return Bukkit.getScheduler().runTaskTimer(InteractiveChat.plugin, () -> {
+    public ScheduledTask packetSender() {
+        return Scheduler.runTaskTimer(InteractiveChat.plugin, () -> {
             while (!sendingQueue.isEmpty()) {
                 OutboundPacket out = sendingQueue.poll();
                 try {
@@ -31,6 +33,6 @@ public class PacketEventsAsyncChatSendingExecutor extends AsyncChatSendingExecut
                     e.printStackTrace();
                 }
             }
-        }, 0, 1).getTaskId();
+        }, 0, 1);
     }
 }
