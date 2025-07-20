@@ -172,6 +172,8 @@ public class PEOutMessagePacket implements PacketListener {
 
                             if (sender != null) {
                                 chatMessage.setMessage((net.kyori.adventure.text.Component) type.convertTo(component, legacyRGB));
+                            } else if (net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(chatMessage.getMessage()).contains("DiscordShare=")) {
+                                chatMessage.setMessage((net.kyori.adventure.text.Component) type.convertTo(component, legacyRGB));
                             }
 
                             sendDebug("Processed SYSTEM_CHAT_MESSAGE Packet:" +
