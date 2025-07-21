@@ -337,10 +337,8 @@ public class PEOutMessagePacket implements PacketListener {
                 return;
             }
 
-            WrapperPlayServerSystemChatMessage chatMessage = (WrapperPlayServerSystemChatMessage) packet;
-            String message = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(chatMessage.getMessage());
-
-            if (!(message.contains("<chat=") || message.contains("<cmd=") || message.contains("<DiscordShare="))) {
+            net.kyori.adventure.text.Component nativeComponent = ((WrapperPlayServerSystemChatMessage) packet).getMessage();
+            if (nativeComponent.children().size() <= 0) {
                 return;
             }
             // Temp Fix SystemChat - end
