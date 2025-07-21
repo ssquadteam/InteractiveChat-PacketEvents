@@ -170,11 +170,7 @@ public class PEOutMessagePacket implements PacketListener {
                                     "LONGER THAN MAX LENGTH: " + longerThanMaxLength +
                                     "CURRENT MESSAGE: " + net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(chatMessage.getMessage()));
 
-                            if (sender != null) {
-                                chatMessage.setMessage((net.kyori.adventure.text.Component) type.convertTo(component, legacyRGB));
-                            } else if (net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(chatMessage.getMessage()).contains("DiscordShare=")) {
-                                chatMessage.setMessage((net.kyori.adventure.text.Component) type.convertTo(component, legacyRGB));
-                            }
+                            chatMessage.setMessage((net.kyori.adventure.text.Component) type.convertTo(component, legacyRGB));
 
                             sendDebug("Processed SYSTEM_CHAT_MESSAGE Packet:" +
                                     "NEW COMPONENT: " + PlainTextComponentSerializer.plainText().serialize(component));
@@ -330,6 +326,24 @@ public class PEOutMessagePacket implements PacketListener {
             if (!packetHandler.getPreFilter().test(event)) return;
 
             InteractiveChat.messagesCounter.getAndIncrement();
+
+            // Temp Fix SystemChat - start
+            if (event.getPacketType() != PacketType.Play.Server.SYSTEM_CHAT_MESSAGE) {
+                return;
+            }
+
+            PacketWrapper<?> packet = event.getLastUsedWrapper();
+            if (!(packet instanceof WrapperPlayServerSystemChatMessage)) {
+                return;
+            }
+
+            WrapperPlayServerSystemChatMessage chatMessage = (WrapperPlayServerSystemChatMessage) packet;
+            String message = net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText().serialize(chatMessage.getMessage());
+
+            if (!(message.contains("<chat=") || message.contains("<cmd=") || message.contains("<DiscordShare="))) {
+                return;
+            }
+            // Temp Fix SystemChat - end
 
             Player receiver = event.getPlayer();
 
