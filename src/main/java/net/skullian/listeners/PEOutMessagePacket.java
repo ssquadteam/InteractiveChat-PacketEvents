@@ -64,19 +64,6 @@ public class PEOutMessagePacket implements PacketListener {
 
         PacketHandler chatHandler = new PacketHandler(
                 event -> {
-                    if (event.getPacketType().equals(PacketType.Play.Server.CHAT_MESSAGE)) {
-                        WrapperPlayServerChatMessage messagePacket = new WrapperPlayServerChatMessage(event);
-
-                        ChatType type = messagePacket.getMessage().getType();
-
-                        sendDebug("Handling PacketSendEvent for CHAT_MESSAGE:" +
-                                "TYPE: " + type);
-
-                        return type == null || type.equals(ChatTypes.GAME_INFO) ?
-                                InteractiveChat.titleListener :
-                                InteractiveChat.chatListener;
-                    }
-
                     WrapperPlayServerSystemChatMessage messagePacket = new WrapperPlayServerSystemChatMessage(event);
 
                     sendDebug("Handling PacketSendEvent for SYSTEM_CHAT_MESSAGE:" +
