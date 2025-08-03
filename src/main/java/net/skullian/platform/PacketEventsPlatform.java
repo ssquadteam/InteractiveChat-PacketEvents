@@ -41,10 +41,6 @@ public class PacketEventsPlatform implements ProtocolPlatform {
         PacketEvents.getAPI().getEventManager().registerListener(new PEOutMessagePacket(), PacketListenerPriority.valueOf(instance.getConfig().getString("ChatListenerPriority")));
         PacketEvents.getAPI().getEventManager().registerListener(new PEClientSettingsPacket(), PacketListenerPriority.valueOf(instance.getConfig().getString("ClientSettingsPriority")));
 
-        if (version.isNewerOrEqualTo(MCVersion.V1_19)) {
-            PacketEvents.getAPI().getEventManager().registerListener(new PERedispatchSignedPacket(), PacketListenerPriority.valueOf(instance.getConfig().getString("SignedPacketPriority")));
-        }
-
         if (!version.isLegacy()) {
             PacketEvents.getAPI().getEventManager().registerListener(new PEOutTabCompletePacket(), PacketListenerPriority.valueOf(instance.getConfig().getString("LegacyCommandPacketPriority")));
         }
