@@ -29,6 +29,7 @@ import net.md_5.bungee.api.ChatColor;
 import net.skullian.platform.PacketEventsAsyncChatSendingExecutor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import com.loohp.interactivechat.libs.com.loohp.platformscheduler.Scheduler;
 
 import java.util.*;
 import java.util.function.Function;
@@ -344,7 +345,7 @@ public class PEOutMessagePacket implements PacketListener {
 
             if (sender.isPresent() && !sender.get().isLocal()) {
                 if (isFiltered) {
-                    Bukkit.getScheduler().runTaskLaterAsynchronously(InteractiveChat.plugin, () -> {
+                    Scheduler.runTaskLaterAsynchronously(InteractiveChat.plugin, () -> {
                         SERVICE.execute(() -> {
                             processPacket(receiver, determinedSender, event, messageUUID, false, packetHandler, originalEvent);
                         }, receiver, messageUUID);
@@ -443,7 +444,7 @@ public class PEOutMessagePacket implements PacketListener {
             PreChatPacketSendEvent sendEvent = new PreChatPacketSendEvent(true, receiver, packet, component, postEventSenderUUID, originalWrapper, InteractiveChat.sendOriginalIfTooLong, longerThanMaxLength);
             Bukkit.getPluginManager().callEvent(sendEvent);
 
-            Bukkit.getScheduler().runTaskLater(InteractiveChat.plugin, () -> {
+            Scheduler.runTaskLater(InteractiveChat.plugin, () -> {
                 InteractiveChat.keyTime.remove(rawMessageKey);
                 InteractiveChat.keyPlayer.remove(rawMessageKey);
             }, 10);
